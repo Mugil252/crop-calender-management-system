@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Activities{% endblock %}
+{% block page_title %}Activity Tracking{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📋 Activity Tracking</h1>
+  <p>Monitor and update all your crop activities.</p>
+</div>
+
+<!-- Filter Bar -->
+<form method="GET" action="{{ url_for('activities') }}">
+  <div class="filter-bar">
+    <div>
+      <label style="font-size:0.78rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">🔍 Search</label>
+      <input type="text" class="form-control" name="search" placeholder="Activity or crop name…"
+             value="{{ search }}" style="min-width:180px;"/>
+    </div>
+    <div>
+      <label style="font-size:0.78rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">🌿 Crop</label>
+      <select class="form-select" name="crop" style="min-width:140px;">
+        <option value="">All Crops</option>
+        {% for c in crop_list %}
+        <option value="{{ c.crop_name }}" {{ 'selected' if crop_filter == c.crop_name }}>{{ c.crop_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label style="font-size:0.78rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">🏷 Status</label>
+      <select class="form-select" name="status" style="min-width:130px;">
+        <option value="all"    {{ 'selected' if status_filter == 'all' }}>All Status</option>
+        <option value="upcoming"  {{ 'selected' if status_filter == 'upcoming' }}>Upcoming</option>
+        <option value="due_today" {{ 'selected' if status_filter == 'due_today' }}>Due Today</option>
+        <option value="overdue"   {{ 'selected' if status_filter == 'overdue' }}>Overdue</option>
+        <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Completed</option>
+        <option value="delayed"   {{ 'selected' if status_filter == 'delayed' }}>Delayed</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:6px;">
+      <button type="submit" class="btn-green" style="padding:0.42rem 1rem;border-radius:8px;font-size:0.82rem;">Filter</button>
+      <a href="{{ url_for('activities') }}" style="padding:0.42rem 0.9rem;border-radius:8px;font-size:0.82rem;background:#f5f5f5;border:1.5px solid #ddd;color:#555;font-weight:600;text-decoration:none;">Clear</a>
+    </div>
+  </div>
+</form>
+
+<!-- Activity Table -->
+<div class="card-box">
+  <div class="card-header">
+    <h5><i class="bi bi-list-check me-1"></i> Activities
+      <span style="font-size:0.78rem;background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:20px;margin-left:6px;">{{ activities|length }} results</span>
+    </h5>
+  </div>
+  <div style="overflow-x:auto;">
+    {% if activities %}
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Crop</th>
+          <th>Activity</th>
+          <th>Scheduled Date</th>
+          <th>Days</th>
+          <th>Status</th>
+          <th>Completed On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for act in activities %}
+        <tr>
+          <td style="color:#888;font-size:0.78rem;">{{ loop.index }}</td>
+          <td>
+            <strong>{{ act.crop_name }}</strong>
+            <br><small style="color:#888;">{{ act.variety }}</small>
+          </td>
+          <td>
+            {{ act.activity_name }}
+            <br>
+            <small style="color:#888;font-size:0.72rem;" title="{{ act.description }}">
+              {{ act.description[:55] ~ '…' if act.description and act.description|length > 55 else act.description }}
+            </small>
+          </td>
+          <td>{{ act.scheduled_date }}</td>
+          <td>
+            {% if act.days_remaining is not none %}
+              {% if act.days_remaining < 0 %}
+                <span style="color:#e53935;font-weight:600;font-size:0.82rem;">{{ act.days_remaining|abs }}d ago</span>
+              {% elif act.days_remaining == 0 %}
+                <span style="color:#f9a825;font-weight:700;font-size:0.82rem;">TODAY</span>
+              {% else %}
+                <span style="color:#0288d1;font-weight:600;font-size:0.82rem;">in {{ act.days_remaining }}d</span>
+              {% endif %}
+            {% else %}
+              <span style="color:#888;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge-status badge-{{ act.live_status }}">
+              {% set labels = {'completed':'Completed','upcoming':'Upcoming','due_today':'Due Today','overdue':'Overdue','delayed':'Delayed'} %}
+              {{ labels.get(act.live_status, act.live_status) }}
+            </span>
+          </td>
+          <td style="font-size:0.82rem;">{{ act.completed_date or '—' }}</td>
+          <td>
+            {% if act.live_status not in ('completed', 'delayed') %}
+            <div class="d-flex gap-1 flex-wrap">
+              <form method="POST" action="{{ url_for('mark_activity', act_id=act.id) }}" style="margin:0;">
+                <input type="hidden" name="status" value="completed"/>
+                <button type="submit" style="background:#2e7d32;color:#fff;border:none;padding:0.25rem 0.6rem;border-radius:6px;font-size:0.73rem;cursor:pointer;font-weight:600;" title="Mark Completed">
+                  ✅ Done
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('mark_activity', act_id=act.id) }}" style="margin:0;">
+                <input type="hidden" name="status" value="delayed"/>
+                <button type="submit" style="background:#7b1fa2;color:#fff;border:none;padding:0.25rem 0.6rem;border-radius:6px;font-size:0.73rem;cursor:pointer;font-weight:600;" title="Mark Delayed">
+                  ⏳ Delay
+                </button>
+              </form>
+            </div>
+            {% elif act.live_status == 'completed' %}
+              <span style="color:#2e7d32;font-size:0.8rem;font-weight:600;">✅ Done</span>
+            {% else %}
+              <span style="color:#7b1fa2;font-size:0.8rem;font-weight:600;">⏳ Delayed</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h5>No Activities Found</h5>
+      <p style="font-size:0.85rem;">Try adjusting your filters or <a href="{{ url_for('add_crop') }}" style="color:#2e7d32;font-weight:600;">add a crop</a> to get started.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Activity Modal (for calendar page use) -->
+<div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px;overflow:hidden;">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Activity Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-row"><span class="detail-label">🌾 Crop:</span><span class="detail-value" id="modal-crop">—</span></div>
+        <div class="detail-row"><span class="detail-label">🔧 Activity:</span><span class="detail-value" id="modal-activity">—</span></div>
+        <div class="detail-row"><span class="detail-label">📅 Scheduled:</span><span class="detail-value" id="modal-date">—</span></div>
+        <div class="detail-row"><span class="detail-label">📋 Description:</span><span class="detail-value" id="modal-desc">—</span></div>
+        <div class="detail-row"><span class="detail-label">🏷 Status:</span><span class="detail-value" id="modal-status">—</span></div>
+        <div class="detail-row"><span class="detail-label">✅ Completed:</span><span class="detail-value" id="modal-completed">—</span></div>
+        <div class="d-flex gap-2 mt-3">
+          <button id="btn-complete-act" class="btn-green" style="border-radius:8px;padding:0.45rem 1rem;font-size:0.85rem;">✅ Mark Completed</button>
+          <button id="btn-delay-act" style="background:#7b1fa2;color:#fff;border:none;border-radius:8px;padding:0.45rem 1rem;font-size:0.85rem;cursor:pointer;font-weight:600;">⏳ Mark Delayed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

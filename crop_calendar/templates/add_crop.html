@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Add Crop{% endblock %}
+{% block page_title %}Add New Crop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🌱 Add New Crop</h1>
+  <p>Select a crop and enter your sowing date. The system will automatically generate your activity calendar.</p>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="form-card">
+      <form method="POST" action="{{ url_for('add_crop') }}" id="addCropForm">
+        <div class="form-section-title">Crop Selection</div>
+
+        <div class="mb-3">
+          <label class="form-label" for="crop_name_sel">Crop Name <span style="color:red;">*</span></label>
+          <select class="form-select" id="crop_name_sel" onchange="loadVarieties(this.value)" required>
+            <option value="">-- Select Crop --</option>
+            {% for c in all_crops %}
+            <option value="{{ c.crop_name }}">{{ c.crop_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="crop_id">Variety & Season <span style="color:red;">*</span></label>
+          <select class="form-select" id="crop_id" name="crop_id" onchange="updateCropInfo()" required>
+            <option value="">-- Select variety first --</option>
+          </select>
+        </div>
+
+        <!-- Crop Info Card (shown after selection) -->
+        <div id="crop-info" style="display:none;background:#f1f8f1;border-radius:10px;padding:0.9rem;margin-bottom:1rem;border:1px solid #c8e6c9;">
+          <p style="font-weight:700;font-size:0.82rem;color:#2e7d32;margin-bottom:0.5rem;">📋 Crop Information</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.82rem;">
+            <div>🗓 Season: <strong id="info-season">—</strong></div>
+            <div>⏳ Duration: <strong id="info-duration">—</strong></div>
+            <div>🌍 Soil Type: <strong id="info-soil">—</strong></div>
+            <div>💧 Water: <strong id="info-water">—</strong></div>
+          </div>
+        </div>
+
+        <div class="form-section-title mt-3">Planting Details</div>
+
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label" for="sowing_date">Sowing Date <span style="color:red;">*</span></label>
+            <input type="date" class="form-control" id="sowing_date" name="sowing_date"
+                   onchange="updateHarvestDate()" required
+                   max="{{ today_max }}" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Expected Harvest Date</label>
+            <div style="background:#f5f5f5;border:1.5px solid #c8e6c9;border-radius:8px;padding:0.55rem 0.85rem;font-size:0.9rem;">
+              📅 <span id="expected-harvest" style="color:#2e7d32;font-weight:600;">Select crop & sowing date</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="field_area">Field Area (acres)</label>
+            <input type="number" step="0.1" min="0.1" class="form-control" id="field_area"
+                   name="field_area" placeholder="e.g. 2.5"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="notes">Notes (optional)</label>
+            <textarea class="form-control" id="notes" name="notes" rows="2"
+                      placeholder="Any additional notes about this crop…"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-green" style="padding:0.6rem 1.5rem;border-radius:10px;font-size:0.9rem;">
+            <i class="bi bi-plus-circle me-1"></i> Add Crop & Generate Calendar
+          </button>
+          <a href="{{ url_for('crops') }}" style="padding:0.6rem 1.2rem;border-radius:10px;font-size:0.9rem;background:#f5f5f5;border:1.5px solid #ddd;color:#555;font-weight:600;text-decoration:none;">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Info panel -->
+  <div class="col-lg-5">
+    <div class="card-box" style="background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;">
+      <div class="card-header" style="background:transparent;border-color:rgba(255,255,255,0.15);">
+        <h5 style="color:#fff;">✨ How It Works</h5>
+      </div>
+      <div class="card-body">
+        <div style="font-size:0.85rem;line-height:1.7;">
+          <p>📌 <strong>Step 1:</strong> Select your crop and variety.</p>
+          <p>📌 <strong>Step 2:</strong> Enter the sowing date.</p>
+          <p>📌 <strong>Step 3:</strong> Click <em>Add Crop & Generate Calendar</em>.</p>
+          <hr style="border-color:rgba(255,255,255,0.2);">
+          <p>🤖 The system will <strong>automatically calculate</strong> all activity dates based on the crop's growth schedule.</p>
+          <p>📆 Activities like irrigation, fertilizer, pest monitoring, and harvesting will appear on your <strong>Calendar</strong>.</p>
+          <p>🔔 You'll receive <strong>Reminders</strong> on the dashboard for upcoming and overdue activities.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-box mt-3">
+      <div class="card-header"><h5>🌾 Supported Crops</h5></div>
+      <div class="card-body">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.82rem;">
+          {% set crops_list = [('🌾','Rice/Paddy'),('🌽','Maize'),('🥜','Groundnut'),('☁️','Cotton'),('🌶️','Chilli'),('🍅','Tomato'),('🍆','Brinjal'),('🧅','Onion'),('🌿','Ragi'),('🎋','Sugarcane')] %}
+          {% for icon, name in crops_list %}
+          <span style="background:#f1f8f1;border:1px solid #c8e6c9;padding:4px 10px;border-radius:20px;font-weight:500;">{{ icon }} {{ name }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Set max sowing date as today
+  document.getElementById('sowing_date').max = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

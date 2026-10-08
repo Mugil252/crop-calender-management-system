@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">🌾</div>
+    <h1 class="auth-title">AgriSmart Login</h1>
+    <p class="auth-sub">Smart Crop Calendar Management System</p>
+
+    <form method="POST" action="{{ url_for('login') }}" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="mobile">Mobile Number</label>
+        <div class="input-group">
+          <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-phone" style="color:#2e7d32;"></i></span>
+          <input type="tel" class="form-control" id="mobile" name="mobile"
+                 placeholder="10-digit mobile number" maxlength="10" required autocomplete="username"/>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-group">
+          <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-lock" style="color:#2e7d32;"></i></span>
+          <input type="password" class="form-control" id="password" name="password"
+                 placeholder="Enter your password" required autocomplete="current-password"/>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary-green mb-3">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Login
+      </button>
+    </form>
+
+    <div class="text-center" style="font-size:0.85rem;">
+      Don't have an account?
+      <a href="{{ url_for('register') }}" style="color:#2e7d32;font-weight:600;">Register Here</a>
+    </div>
+
+    <!-- Demo Credentials -->
+    <div style="margin-top:1.2rem;padding:0.9rem;background:#f1f8f1;border-radius:10px;border:1px dashed #c8e6c9;">
+      <p style="font-size:0.75rem;font-weight:700;color:#2e7d32;margin-bottom:4px;">🧪 Demo Credentials</p>
+      <p style="font-size:0.8rem;color:#555;margin:0;">Mobile: <strong>9876543210</strong></p>
+      <p style="font-size:0.8rem;color:#555;margin:0;">Password: <strong>farmer123</strong></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

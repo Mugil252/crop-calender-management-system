@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>👤 Farmer Profile</h1>
+  <p>Manage your account information.</p>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <!-- Profile Card -->
+    <div class="card-box text-center" style="padding-bottom:1.5rem;">
+      <div class="card-body">
+        <div style="width:90px;height:90px;background:linear-gradient(135deg,#2e7d32,#8bc34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2.5rem;color:#fff;font-weight:700;box-shadow:0 8px 24px rgba(46,125,50,0.3);">
+          {{ user.name[0].upper() }}
+        </div>
+        <h4 style="font-weight:700;color:#1b5e20;">{{ user.name }}</h4>
+        <p style="color:#888;font-size:0.875rem;">
+          <i class="bi bi-geo-alt me-1"></i>{{ user.location }}
+        </p>
+        <p style="color:#888;font-size:0.875rem;">
+          <i class="bi bi-phone me-1"></i>{{ user.mobile }}
+        </p>
+        <p style="color:#888;font-size:0.78rem;">Member since {{ user.created_at[:10] if user.created_at else '—' }}</p>
+
+        <div style="background:#f1f8f1;border-radius:10px;padding:0.9rem;margin-top:1rem;font-size:0.82rem;text-align:left;">
+          <p style="font-weight:700;color:#2e7d32;margin-bottom:0.4rem;">🔐 Security Tips</p>
+          <p style="color:#555;margin:0;">• Your password is securely hashed using SHA-256.</p>
+          <p style="color:#555;margin:0;">• Never share your login credentials.</p>
+          <p style="color:#555;margin:0;">• Use a strong password of at least 8 characters.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="form-card">
+      <div class="form-section-title">Edit Profile</div>
+      <form method="POST" action="{{ url_for('profile') }}">
+        <div class="mb-3">
+          <label class="form-label" for="name">Full Name</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-person" style="color:#2e7d32;"></i></span>
+            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required/>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mobile Number</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-phone" style="color:#888;"></i></span>
+            <input type="text" class="form-control" value="{{ user.mobile }}" disabled
+                   style="background:#f5f5f5;color:#888;" title="Mobile number cannot be changed."/>
+          </div>
+          <small style="color:#888;font-size:0.75rem;">Mobile number cannot be changed.</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="location">Location / Village</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-geo-alt" style="color:#2e7d32;"></i></span>
+            <input type="text" class="form-control" id="location" name="location" value="{{ user.location }}" required/>
+          </div>
+        </div>
+
+        <hr style="border-color:#e0e0e0;margin:1rem 0;"/>
+        <div class="form-section-title">Change Password (Optional)</div>
+
+        <div class="mb-3">
+          <label class="form-label" for="new_password">New Password</label>
+          <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Leave blank to keep current"/>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn-green" style="padding:0.6rem 1.5rem;border-radius:10px;">
+            <i class="bi bi-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

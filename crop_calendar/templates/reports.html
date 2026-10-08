@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Farm Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📊 Farm Reports</h1>
+  <p>Comprehensive overview of your farm performance and crop-wise progress.</p>
+</div>
+
+<!-- Summary cards -->
+{% set total_completed = report_rows | sum(attribute='completed') %}
+{% set total_pending   = report_rows | sum(attribute='pending') %}
+{% set total_delayed   = report_rows | sum(attribute='delayed') %}
+{% set total_overdue   = report_rows | sum(attribute='overdue') %}
+
+<div class="stat-cards">
+  <div class="stat-card">
+    <div class="stat-icon">🌾</div>
+    <div class="stat-number" data-target="{{ total_crops }}">{{ total_crops }}</div>
+    <div class="stat-label">Total Crops</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon">✅</div>
+    <div class="stat-number" data-target="{{ total_completed }}">{{ total_completed }}</div>
+    <div class="stat-label">Completed Activities</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-icon">📅</div>
+    <div class="stat-number" data-target="{{ total_pending }}">{{ total_pending }}</div>
+    <div class="stat-label">Pending Activities</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-number" data-target="{{ total_delayed }}">{{ total_delayed }}</div>
+    <div class="stat-label">Delayed</div>
+  </div>
+  <div class="stat-card danger">
+    <div class="stat-icon">⚠️</div>
+    <div class="stat-number" data-target="{{ total_overdue }}">{{ total_overdue }}</div>
+    <div class="stat-label">Overdue</div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Pie Chart -->
+  <div class="col-lg-5">
+    <div class="card-box h-100">
+      <div class="card-header"><h5><i class="bi bi-pie-chart me-1"></i> Activity Distribution</h5></div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <div style="height:250px;width:100%;position:relative;">
+          <canvas id="reportPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bar Chart -->
+  <div class="col-lg-7">
+    <div class="card-box h-100">
+      <div class="card-header"><h5><i class="bi bi-bar-chart me-1"></i> Crop-wise Completion</h5></div>
+      <div class="card-body">
+        <div style="height:250px;position:relative;">
+          <canvas id="cropProgressChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Crop-wise Report Table -->
+<div class="card-box mt-3">
+  <div class="card-header">
+    <h5><i class="bi bi-table me-1"></i> Crop-wise Progress Report</h5>
+    <small style="color:#888;">As of {{ today }}</small>
+  </div>
+  <div style="overflow-x:auto;">
+    {% if report_rows %}
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>#</th><th>Crop</th><th>Variety</th><th>Season</th>
+          <th>Sowing Date</th><th>Harvest Date</th><th>Status</th>
+          <th>Total</th><th>Done</th><th>Pending</th><th>Delayed</th><th>Overdue</th><th>Progress</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in report_rows %}
+        <tr>
+          <td style="color:#888;font-size:0.78rem;">{{ loop.index }}</td>
+          <td><strong>{{ r.crop_name }}</strong></td>
+          <td>{{ r.variety }}</td>
+          <td>{{ r.season }}</td>
+          <td>{{ r.sowing_date }}</td>
+          <td>{{ r.expected_harvest_date or '—' }}</td>
+          <td><span class="badge-status badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>{{ r.total }}</td>
+          <td style="color:#2e7d32;font-weight:600;">{{ r.completed }}</td>
+          <td style="color:#0288d1;">{{ r.pending }}</td>
+          <td style="color:#7b1fa2;">{{ r.delayed }}</td>
+          <td style="color:#e53935;">{{ r.overdue }}</td>
+          <td style="min-width:120px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="progress-custom" style="flex:1;height:8px;">
+                <div class="progress-fill" data-width="{{ r.progress }}" style="width:0%;"></div>
+              </div>
+              <span style="font-size:0.78rem;font-weight:700;color:#2e7d32;white-space:nowrap;">{{ r.progress }}%</span>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <h5>No Crops Added Yet</h5>
+      <p style="font-size:0.85rem;"><a href="{{ url_for('add_crop') }}" style="color:#2e7d32;font-weight:600;">Add a crop</a> to see reports.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    initReportCharts({
+      completed: {{ total_completed }},
+      pending:   {{ total_pending }},
+      delayed:   {{ total_delayed }},
+      overdue:   {{ total_overdue }},
+      crop_labels:  {{ report_rows | map(attribute='crop_name') | list | tojson }},
+      crop_progress:{{ report_rows | map(attribute='progress') | list | tojson }},
+    });
+  });
+</script>
+{% endblock %}

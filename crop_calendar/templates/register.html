@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+  <div class="auth-card" style="max-width:500px;">
+    <div class="auth-logo">🌱</div>
+    <h1 class="auth-title">Farmer Registration</h1>
+    <p class="auth-sub">Create your AgriSmart account</p>
+
+    <form method="POST" action="{{ url_for('register') }}" novalidate>
+      <div class="row g-2">
+        <div class="col-12">
+          <label class="form-label" for="name">Full Name</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-person" style="color:#2e7d32;"></i></span>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Your full name" required/>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="mobile">Mobile Number</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-phone" style="color:#2e7d32;"></i></span>
+            <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="10-digit mobile" maxlength="10" required/>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="location">Location / Village</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-color:#c8e6c9;"><i class="bi bi-geo-alt" style="color:#2e7d32;"></i></span>
+            <input type="text" class="form-control" id="location" name="location" placeholder="District, State" required/>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Min 6 chars" required/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="confirm_password">Confirm Password</label>
+          <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Repeat password" required/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary-green mt-3 mb-3">
+        <i class="bi bi-person-plus me-1"></i> Create Account
+      </button>
+    </form>
+
+    <div class="text-center" style="font-size:0.85rem;">
+      Already have an account?
+      <a href="{{ url_for('login') }}" style="color:#2e7d32;font-weight:600;">Login Here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

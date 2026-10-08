@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Crop Recommendation{% endblock %}
+{% block page_title %}Crop Recommendation{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📚 Crop Recommendation</h1>
+  <p>Reference rule base used to match soil type, season and water availability to the best-suited crop.</p>
+</div>
+
+<!-- Recommendation Rule Base Table -->
+<div class="card-box">
+  <div class="card-header">
+    <h5>📚 Recommendation Rule Base</h5>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Soil Type</th>
+          <th>Season</th>
+          <th>Water Need</th>
+          <th>Recommended Crop</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Black Cotton</td><td>Kharif</td><td>High</td><td>Cotton</td><td>180–190 days</td></tr>
+        <tr><td>Clay Loam</td><td>Kharif</td><td>High</td><td>Rice/Paddy</td><td>120–130 days</td></tr>
+        <tr><td>Sandy Loam</td><td>Kharif</td><td>Medium</td><td>Groundnut</td><td>110–120 days</td></tr>
+        <tr><td>Sandy Loam</td><td>Rabi</td><td>Low</td><td>Onion</td><td>110–120 days</td></tr>
+        <tr><td>Sandy Loam</td><td>Kharif</td><td>High</td><td>Maize</td><td>90–100 days</td></tr>
+        <tr><td>Red Loam</td><td>Kharif</td><td>Medium</td><td>Chilli</td><td>150–160 days</td></tr>
+        <tr><td>Red Loam</td><td>Rabi</td><td>Medium</td><td>Tomato</td><td>110–120 days</td></tr>
+        <tr><td>Loam</td><td>All Season</td><td>Medium</td><td>Brinjal</td><td>130–140 days</td></tr>
+        <tr><td>Red Laterite</td><td>Kharif</td><td>Low</td><td>Ragi</td><td>100–110 days</td></tr>
+        <tr><td>Deep Loam</td><td>Annual</td><td>High</td><td>Sugarcane</td><td>360–365 days</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

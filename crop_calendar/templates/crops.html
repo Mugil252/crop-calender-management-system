@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}My Crops{% endblock %}
+{% block page_title %}My Crops{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h1>🌿 My Crops</h1>
+    <p>All your registered crops and their progress.</p>
+  </div>
+  <a href="{{ url_for('add_crop') }}" class="btn-green" style="text-decoration:none;padding:0.55rem 1.2rem;border-radius:10px;">
+    <i class="bi bi-plus-lg me-1"></i> Add Crop
+  </a>
+</div>
+
+{% if crops %}
+<div class="row g-3">
+  {% for crop in crops %}
+  {% set crop_icons = {'Rice/Paddy':'🌾','Maize':'🌽','Groundnut':'🥜','Cotton':'☁️','Chilli':'🌶️','Tomato':'🍅','Brinjal':'🍆','Onion':'🧅','Ragi':'🌿','Sugarcane':'🎋'} %}
+  {% set icon = crop_icons.get(crop.crop_name, '🌱') %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card-box h-100" style="transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform='none'">
+      <div class="card-header">
+        <h5>{{ icon }} {{ crop.crop_name }}
+          <small style="font-weight:400;color:#888;"> – {{ crop.variety }}</small>
+        </h5>
+        <span class="badge-status badge-{{ crop.status }}">{{ crop.status }}</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.9rem;font-size:0.82rem;">
+          <div><span style="color:#888;">Season:</span> <strong>{{ crop.season }}</strong></div>
+          <div><span style="color:#888;">Area:</span> <strong>{{ crop.field_area or '—' }} acres</strong></div>
+          <div><span style="color:#888;">Sown:</span> <strong>{{ crop.sowing_date }}</strong></div>
+          <div><span style="color:#888;">Harvest:</span> <strong>{{ crop.expected_harvest_date or '—' }}</strong></div>
+          <div><span style="color:#888;">Done:</span> <strong>{{ crop.completed }}/{{ crop.total }}</strong></div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-1" style="font-size:0.78rem;">
+          <span style="color:#666;">Progress</span>
+          <span style="font-weight:700;color:#2e7d32;">{{ crop.progress }}%</span>
+        </div>
+        <div class="progress-custom" style="margin-bottom:1rem;">
+          <div class="progress-fill" data-width="{{ crop.progress }}" style="width:0%;"></div>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('activities') }}?crop={{ crop.crop_name }}" class="btn-sm-outline">
+            <i class="bi bi-list-check me-1"></i>Activities
+          </a>
+          <a href="{{ url_for('calendar') }}" class="btn-sm-outline">
+            <i class="bi bi-calendar me-1"></i>Calendar
+          </a>
+          <form method="POST" action="{{ url_for('delete_crop', fc_id=crop.id) }}"
+                onsubmit="return confirm('Remove this crop and all its activities?');" style="margin:0;">
+            <button type="submit" style="background:none;border:1.5px solid #e53935;color:#e53935;padding:0.3rem 0.8rem;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;">
+              <i class="bi bi-trash me-1"></i>Remove
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card-box" style="max-width:500px;margin:2rem auto;">
+  <div class="card-body">
+    <div class="empty-state">
+      <div class="empty-icon">🌱</div>
+      <h5>No Crops Added Yet</h5>
+      <p style="font-size:0.85rem;color:#888;">Start by adding your first crop to generate a smart activity calendar.</p>
+      <a href="{{ url_for('add_crop') }}" class="btn-green" style="text-decoration:none;padding:0.55rem 1.5rem;border-radius:10px;display:inline-block;margin-top:0.8rem;">
+        <i class="bi bi-plus-lg me-1"></i> Add Your First Crop
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
